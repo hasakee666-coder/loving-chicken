@@ -10,15 +10,12 @@
   padding: 0;
   box-sizing: border-box;
   font-family: system-ui, -apple-system, 'Segoe UI', 'Helvetica Neue', '微软雅黑', sans-serif;
-  -webkit-tap-highlight-color: transparent; /* 去掉移动端点击灰层 */
+  -webkit-tap-highlight-color: transparent;
 }
-
 html, body {
   height: 100%;
   width: 100%;
 }
-
-/* 背景完全显示在最底层，不会被任何东西遮挡 */
 body {
   background-color: #ffeef4;
   background-size: cover;
@@ -28,20 +25,16 @@ body {
   transition: background-image 0.25s ease;
   position: relative;
 }
-
-/* 最外层页面容器：完全透明，只负责布局，不遮挡背景 */
 .page {
   width: 100%;
   min-height: 100vh;
-  background: transparent;  /* 关键：完全透明 */
+  background: transparent;
   padding: 16px 12px 30px;
 }
-
-/* 内容卡片：使用透明背景 + 轻微模糊，让背景图完整透出来 */
 .container {
   max-width: 540px;
   margin: 0 auto;
-  background: rgba(255, 248, 250, 0.72);  /* 高透明白色，背景清晰可见 */
+  background: rgba(255, 248, 250, 0.72);
   backdrop-filter: blur(8px);
   border-radius: 36px;
   padding: 20px 18px 24px;
@@ -50,24 +43,20 @@ body {
   z-index: 2;
   transition: all 0.2s;
 }
-
-/* 所有按钮增加触摸区域优化，移动端更容易点击 */
 button, .cate-btn, .image-pick-label, .add-btn-primary, .btn-add, .btn-del, #clear-cart, #submit-order, .setting-btn {
   cursor: pointer;
-  touch-action: manipulation;  /* 优化触摸响应 */
-  min-height: 44px;  /* 移动端最小点击区域 */
+  touch-action: manipulation;
+  min-height: 44px;
   display: inline-flex;
   align-items: center;
   justify-content: center;
 }
-
 .setting-box {
   position: absolute;
   right: 16px;
   top: 16px;
   z-index: 150;
 }
-
 .setting-btn {
   background: #ff7b9c;
   color: white;
@@ -79,12 +68,10 @@ button, .cate-btn, .image-pick-label, .add-btn-primary, .btn-add, .btn-del, #cle
   box-shadow: 0 4px 10px rgba(0,0,0,0.1);
   transition: 0.1s;
 }
-
 .setting-btn:active {
   transform: scale(0.94);
   background: #ff5e84;
 }
-
 .setting-menu {
   position: absolute;
   right: 0;
@@ -99,11 +86,9 @@ button, .cate-btn, .image-pick-label, .add-btn-primary, .btn-add, .btn-del, #cle
   box-shadow: 0 12px 28px rgba(0,0,0,0.12);
   z-index: 200;
 }
-
 .setting-menu.show {
   display: block;
 }
-
 .setting-menu button {
   width: 100%;
   background: transparent;
@@ -117,12 +102,10 @@ button, .cate-btn, .image-pick-label, .add-btn-primary, .btn-add, .btn-del, #cle
   color: #4a3b40;
   min-height: 48px;
 }
-
 .setting-menu button:active {
   background: #ffe5ef;
   color: #ff5e84;
 }
-
 .title {
   text-align: center;
   font-size: 27px;
@@ -132,7 +115,6 @@ button, .cate-btn, .image-pick-label, .add-btn-primary, .btn-add, .btn-del, #cle
   margin-top: 6px;
   text-shadow: 0 1px 2px rgba(255,255,255,0.6);
 }
-
 .subtitle {
   text-align: center;
   color: #b28b9b;
@@ -140,7 +122,6 @@ button, .cate-btn, .image-pick-label, .add-btn-primary, .btn-add, .btn-del, #cle
   font-size: 13px;
   font-weight: 500;
 }
-
 .add-box {
   background: rgba(255, 248, 251, 0.85);
   border-radius: 28px;
@@ -149,7 +130,6 @@ button, .cate-btn, .image-pick-label, .add-btn-primary, .btn-add, .btn-del, #cle
   border: 1px solid rgba(255, 226, 236, 0.6);
   box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
 }
-
 .add-box h3 {
   color: #ff7b9c;
   font-size: 17px;
@@ -159,7 +139,6 @@ button, .cate-btn, .image-pick-label, .add-btn-primary, .btn-add, .btn-del, #cle
   align-items: center;
   gap: 8px;
 }
-
 .add-row {
   display: flex;
   gap: 12px;
@@ -167,7 +146,6 @@ button, .cate-btn, .image-pick-label, .add-btn-primary, .btn-add, .btn-del, #cle
   flex-wrap: wrap;
   align-items: center;
 }
-
 .add-row input,
 .add-row select {
   padding: 12px 16px;
@@ -181,13 +159,11 @@ button, .cate-btn, .image-pick-label, .add-btn-primary, .btn-add, .btn-del, #cle
   transition: 0.2s;
   min-height: 48px;
 }
-
 .add-row input:focus,
 .add-row select:focus {
   border-color: #ff85a8;
   box-shadow: 0 0 0 3px rgba(255, 94, 132, 0.15);
 }
-
 .image-pick-area {
   display: flex;
   align-items: center;
@@ -198,7 +174,6 @@ button, .cate-btn, .image-pick-label, .add-btn-primary, .btn-add, .btn-del, #cle
   flex: 1.2;
   border: 1px solid #ffe0ea;
 }
-
 .image-pick-label {
   background: #ff7b9c20;
   padding: 8px 18px;
@@ -212,12 +187,10 @@ button, .cate-btn, .image-pick-label, .add-btn-primary, .btn-add, .btn-del, #cle
   border: 1px solid #ffb7cc;
   min-height: 44px;
 }
-
 .image-pick-label:active {
   background: #ffdae5;
   transform: scale(0.96);
 }
-
 #selectedImageName {
   font-size: 12px;
   color: #b2738a;
@@ -226,7 +199,6 @@ button, .cate-btn, .image-pick-label, .add-btn-primary, .btn-add, .btn-del, #cle
   text-overflow: ellipsis;
   white-space: nowrap;
 }
-
 .add-btn-primary {
   background: #ff7b9c;
   border: none;
@@ -241,12 +213,10 @@ button, .cate-btn, .image-pick-label, .add-btn-primary, .btn-add, .btn-del, #cle
   width: 100%;
   min-height: 52px;
 }
-
 .add-btn-primary:active {
   background: #ff5e84;
   transform: scale(0.97);
 }
-
 .main-wrap {
   display: flex;
   height: 460px;
@@ -255,7 +225,6 @@ button, .cate-btn, .image-pick-label, .add-btn-primary, .btn-add, .btn-del, #cle
   overflow: hidden;
   border: 1px solid rgba(255, 226, 236, 0.5);
 }
-
 .cate-sidebar {
   width: 100px;
   background: rgba(255, 245, 249, 0.7);
@@ -264,7 +233,6 @@ button, .cate-btn, .image-pick-label, .add-btn-primary, .btn-add, .btn-del, #cle
   flex-direction: column;
   padding: 12px 0;
 }
-
 .cate-btn {
   padding: 16px 6px;
   border: none;
@@ -279,14 +247,12 @@ button, .cate-btn, .image-pick-label, .add-btn-primary, .btn-add, .btn-del, #cle
   min-height: 60px;
   touch-action: manipulation;
 }
-
 .cate-btn.active {
   background: rgba(255, 255, 255, 0.8);
   color: #ff5e84;
   border-left: 3px solid #ff5e84;
   font-weight: 800;
 }
-
 .food-content {
   flex: 1;
   background: rgba(255, 250, 252, 0.6);
@@ -294,15 +260,12 @@ button, .cate-btn, .image-pick-label, .add-btn-primary, .btn-add, .btn-del, #cle
   padding: 12px 10px;
   -webkit-overflow-scrolling: touch;
 }
-
 .cate-panel {
   display: none;
 }
-
 .cate-panel.active-panel {
   display: block;
 }
-
 .food-item-wrap {
   position: relative;
   margin-bottom: 14px;
@@ -313,13 +276,11 @@ button, .cate-btn, .image-pick-label, .add-btn-primary, .btn-add, .btn-del, #cle
   border: 1px solid #ffe7ef;
   box-shadow: 0 2px 6px rgba(0,0,0,0.03);
 }
-
 .food-item {
   display: flex;
   align-items: center;
   gap: 12px;
 }
-
 .food-item img {
   width: 68px;
   height: 68px;
@@ -328,17 +289,14 @@ button, .cate-btn, .image-pick-label, .add-btn-primary, .btn-add, .btn-del, #cle
   background: #fce4ec;
   box-shadow: 0 2px 8px rgba(0,0,0,0.05);
 }
-
 .food-info {
   flex: 1;
 }
-
 .food-name {
   font-size: 16px;
   font-weight: 700;
   color: #3e2c32;
 }
-
 .btn-add {
   width: 44px;
   height: 44px;
@@ -355,12 +313,10 @@ button, .cate-btn, .image-pick-label, .add-btn-primary, .btn-add, .btn-del, #cle
   justify-content: center;
   flex-shrink: 0;
 }
-
 .btn-add:active {
   background: #3bb851;
   transform: scale(0.92);
 }
-
 .btn-del {
   position: absolute;
   top: -8px;
@@ -380,7 +336,6 @@ button, .cate-btn, .image-pick-label, .add-btn-primary, .btn-add, .btn-del, #cle
   align-items: center;
   justify-content: center;
 }
-
 .cart-box, .order-box {
   background: rgba(255, 248, 251, 0.85);
   border-radius: 28px;
@@ -388,7 +343,6 @@ button, .cate-btn, .image-pick-label, .add-btn-primary, .btn-add, .btn-del, #cle
   margin-top: 18px;
   border: 1px solid rgba(255, 226, 236, 0.6);
 }
-
 .cart-box h3, .order-box h3 {
   color: #ff6b8f;
   font-size: 18px;
@@ -401,7 +355,6 @@ button, .cate-btn, .image-pick-label, .add-btn-primary, .btn-add, .btn-del, #cle
   padding: 8px 0;
   min-height: 48px;
 }
-
 #cart-list {
   font-size: 14px;
   line-height: 1.5;
@@ -413,13 +366,11 @@ button, .cate-btn, .image-pick-label, .add-btn-primary, .btn-add, .btn-del, #cle
   min-height: 60px;
   word-break: break-word;
 }
-
 .cart-bottom {
   display: flex;
   justify-content: space-between;
   gap: 12px;
 }
-
 .cart-bottom button {
   flex: 1;
   padding: 12px 0;
@@ -431,18 +382,15 @@ button, .cate-btn, .image-pick-label, .add-btn-primary, .btn-add, .btn-del, #cle
   min-height: 48px;
   touch-action: manipulation;
 }
-
 #clear-cart {
   background: #ffb3c6;
   color: #8b3c4e;
 }
-
 #submit-order {
   background: #ff7b9c;
   color: white;
   box-shadow: 0 2px 6px rgba(255, 94, 132, 0.3);
 }
-
 .cart-modal {
   display: none;
   position: fixed;
@@ -457,7 +405,6 @@ button, .cate-btn, .image-pick-label, .add-btn-primary, .btn-add, .btn-del, #cle
   justify-content: center;
   padding: 20px;
 }
-
 .cart-modal-content {
   background: white;
   border-radius: 36px;
@@ -467,7 +414,6 @@ button, .cate-btn, .image-pick-label, .add-btn-primary, .btn-add, .btn-del, #cle
   max-height: 65vh;
   overflow-y: auto;
 }
-
 .modal-title {
   font-size: 20px;
   font-weight: 800;
@@ -475,28 +421,23 @@ button, .cate-btn, .image-pick-label, .add-btn-primary, .btn-add, .btn-del, #cle
   text-align: center;
   margin-bottom: 18px;
 }
-
 .modal-cart-item {
   padding: 10px 0;
   border-bottom: 1px solid #ffecf0;
   font-weight: 500;
 }
-
 .order-item {
   padding: 12px 0;
   border-bottom: 1px solid #ffebf0;
 }
-
 .order-time {
   color: #b28293;
   font-size: 12px;
   margin-bottom: 5px;
 }
-
 #bgFileInput, #hiddenFoodImage {
   display: none;
 }
-
 .global-tip {
   position: fixed;
   bottom: 30px;
@@ -515,7 +456,6 @@ button, .cate-btn, .image-pick-label, .add-btn-primary, .btn-add, .btn-del, #cle
   box-shadow: 0 4px 12px rgba(0,0,0,0.2);
   transition: opacity 0.2s;
 }
-
 @media (max-width: 480px) {
   .container {
     padding: 16px 14px 20px;
@@ -552,10 +492,8 @@ button, .cate-btn, .image-pick-label, .add-btn-primary, .btn-add, .btn-del, #cle
         <button id="resetBtn">♻️ 恢复默认</button>
       </div>
     </div>
-
     <div class="title" id="mainTitle">宝宝专用御膳房</div>
     <div class="subtitle">💕 为爱人定制专属菜单 💕</div>
-
     <div class="add-box">
       <h3>🍳 添加爱心菜品</h3>
       <div class="add-row">
@@ -577,7 +515,6 @@ button, .cate-btn, .image-pick-label, .add-btn-primary, .btn-add, .btn-del, #cle
         <button class="add-btn-primary" id="addFoodBtn">✨ 添加到菜单 ✨</button>
       </div>
     </div>
-
     <div class="main-wrap">
       <div class="cate-sidebar">
         <button class="cate-btn active" data-cate="veg">🥬 素菜</button>
@@ -592,7 +529,6 @@ button, .cate-btn, .image-pick-label, .add-btn-primary, .btn-add, .btn-del, #cle
         <div id="porridge" class="cate-panel"></div>
       </div>
     </div>
-
     <div class="cart-box">
       <h3 onclick="openCartModal()">🛒 已选菜品 <span style="font-size:12px;">👆 点我展开详情</span></h3>
       <div id="cart-list">🍽️ 还未选菜～ 点击菜品旁的➕</div>
@@ -601,41 +537,30 @@ button, .cate-btn, .image-pick-label, .add-btn-primary, .btn-add, .btn-del, #cle
         <button id="submit-order">✅ 提交下单</button>
       </div>
     </div>
-
     <div class="order-box">
       <h3>📋 点单记录 (爱的投喂记录)</h3>
       <div id="order-list"></div>
     </div>
   </div>
 </div>
-
 <div class="cart-modal" id="cartModal">
   <div class="cart-modal-content">
     <div class="modal-title">🍽️ 今日精选菜品</div>
     <div id="modalCartList"></div>
   </div>
 </div>
-
 <input type="file" id="bgFileInput" accept="image/*">
 <input type="file" id="hiddenFoodImage" accept="image/jpeg,image/png,image/webp,image/jpg">
-
 <script>
-// 默认配置
-const defaultBg = "https://i.imgur.com/4d4Z9aZ.jpg";
+const defaultBg = "https://picsum.photos/1200/800";
 const defaultTitle = "宝宝专用御膳房";
-
-// 数据
 let foods = JSON.parse(localStorage.getItem("foods")) || {
-  veg: [],
-  meat: [],
-  drink: [],
-  porridge: []
+  veg: [], meat: [], drink: [], porridge: []
 };
 let cart = JSON.parse(localStorage.getItem("cart")) || [];
 let orders = JSON.parse(localStorage.getItem("orders")) || [];
 let currentTitle = localStorage.getItem("title") || defaultTitle;
 let currentBg = localStorage.getItem("bg") || defaultBg;
-
 let pendingImageBase64 = null;
 
 ['veg', 'meat', 'drink', 'porridge'].forEach(c => {
@@ -650,7 +575,6 @@ function saveAll() {
   localStorage.setItem("bg", currentBg);
 }
 
-// 背景应用到body，所有上层透明/半透明，完全不被遮挡
 function applyBackground() {
   document.body.style.backgroundImage = `url(${currentBg})`;
   document.body.style.backgroundSize = "cover";
@@ -686,12 +610,12 @@ function renderFoods() {
       continue;
     }
     container.innerHTML = items.map((food, idx) => {
-      const imgSrc = food.url && (food.url.startsWith('data:') || food.url.startsWith('http')) ? food.url : 'https://placehold.co/70x70?text=🍲';
+      const imgSrc = food.url || 'https://picsum.photos/70/70';
       return `
         <div class="food-item-wrap" data-cate="${cate}" data-index="${idx}">
           <button class="btn-del" data-cate="${cate}" data-index="${idx}">✖</button>
           <div class="food-item">
-            <img src="${imgSrc}" alt="${escapeHtml(food.name)}" onerror="this.src='https://placehold.co/70x70?text=🍚'">
+            <img src="${imgSrc}" alt="${escapeHtml(food.name)}" onerror="this.src='https://picsum.photos/70/70'">
             <div class="food-info">
               <div class="food-name">${escapeHtml(food.name)}</div>
             </div>
@@ -789,10 +713,6 @@ function addNewFoodHandler() {
   
   if (!name) {
     showMessage('💖 请填写菜品名称', true);
-    return;
-  }
-  if (!pendingImageBase64) {
-    showMessage('📸 请先选择一张菜品图片', true);
     return;
   }
   
@@ -902,6 +822,7 @@ if (settingBtn) {
     menuDiv.classList.toggle('show');
   });
 }
+
 document.addEventListener('click', (e) => {
   if (menuDiv && !menuDiv.contains(e.target) && e.target !== settingBtn) {
     menuDiv.classList.remove('show');
@@ -924,6 +845,7 @@ document.getElementById('changeBgBtn')?.addEventListener('click', () => {
   menuDiv.classList.remove('show');
   document.getElementById('bgFileInput').click();
 });
+
 document.getElementById('bgFileInput')?.addEventListener('change', (e) => {
   const file = e.target.files[0];
   if (!file) return;
