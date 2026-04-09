@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+<title>宝宝御膳房 · 情侣点餐助手</title>
+<style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: system-ui, -apple-system, 'Segoe UI', 'Helvetica Neue', '微软雅黑', sans-serif;
+  -webkit-tap-highlight-color: transparent;
+}
+html, body {
+  height: 100%;
+  width: 100%;
+}
+body {
+  background-color: #ffeef4;
+  background-size: cover;
+  background-position: center center;
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+  background-image: url(https://picsum.photos/1200/800);
+}
+.page {
+  width: 100%;
+  min-height: 100vh;
+  background: transparent;
+  padding: 16px 12px 30px;
+}
+.container {
+  max-width: 540px;
+  margin: 0 auto;
+  background: rgba(255, 248, 250, 0.72);
+  backdrop-filter: blur(8px);
+  border-radius: 36px;
+  padding: 20px 18px 24px;
+  box-shadow: 0 16px 32px rgba(0, 0, 0, 0.08);
+  position: relative;
+  z-index: 2;
+}
+.setting-box {
+  position: absolute;
+  right: 16px;
+  top: 16px;
+  z-index: 150;
+}
+.setting-btn {
+  background: #ff7b9c;
+  color: white;
+  border: none;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  font-size: 22px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+}
+.setting-menu {
+  position: absolute;
+  right: 0;
+  top: 52px;
+  background: rgba(255,255,255,0.98);
+  backdrop-filter: blur(16px);
+  border-radius: 24px;
+  border: 1px solid #ffe2ec;
+  padding: 8px;
+  min-width: 160px;
+  display: none;
+  box-shadow: 0 12px 28px rgba(0,0,0,0.12);
+  z-index: 200;
+}
+.setting-menu.show { display: block; }
+.setting-menu button {
+  width: 100%;
+  background: transparent;
+  border: none;
+  padding: 12px 14px;
+  text-align: left;
+  border-radius: 16px;
+  font-size: 14px;
+  font-weight: 500;
+  color: #4a3b40;
+}
+.title {
+  text-align: center;
+  font-size: 27px;
+  font-weight: 800;
+  color: #ff6b8f;
+  margin-top: 6px;
+}
+.subtitle {
+  text-align: center;
+  color: #b28b9b;
+  margin-bottom: 20px;
+  font-size: 13px;
+}
+.add-box {
+  background: rgba(255,248,251,0.85);
+  border-radius: 28px;
+  padding: 16px 18px;
+  margin-bottom: 20px;
+}
+.add-box h3 {
+  color: #ff7b9c;
+  font-size: 17px;
+  margin-bottom: 14px;
+  font-weight: 700;
+}
+.add-row {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+.add-row input, .add-row select {
+  padding: 12px 16px;
+  border-radius: 48px;
+  border: 1px solid #ffd9e5;
+  background: rgba(255,255,255,0.95);
+  flex: 1;
+  min-width: 130px;
+  font-size: 15px;
+  outline: none;
+}
+.image-pick-area {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(255,241,245,0.9);
+  border-radius: 60px;
+  padding: 4px 8px 4px 16px;
+  flex: 1.2;
+  border: 1px solid #ffe0ea;
+}
+.image-pick-label {
+  background: #ff7b9c20;
+  padding: 8px 18px;
+  border-radius: 40px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #ff5e84;
+  border: 1px solid #ffb7cc;
+}
+.add-btn-primary {
+  background: #ff7b9c;
+  border: none;
+  padding: 14px 24px;
+  border-radius: 48px;
+  color: white;
+  font-weight: 700;
+  font-size: 16px;
+  width: 100%;
+}
+.main-wrap {
+  display: flex;
+  height: 460px;
+  background: rgba(255,250,253,0.7);
+  border-radius: 28px;
+  overflow: hidden;
+}
+.cate-sidebar {
+  width: 100px;
+  background: rgba(255,245,249,0.7);
+  display: flex;
+  flex-direction: column;
+  padding: 12px 0;
+}
+.cate-btn {
+  padding: 16px 6px;
+  border: none;
+  background: transparent;
+  font-size: 15px;
+  font-weight: 600;
+  text-align: center;
+  color: #ac8c99;
+  border-left: 3px solid transparent;
+}
+.cate-btn.active {
+  background: rgba(255,255,255,0.8);
+  color: #ff5e84;
+  border-left: 3px solid #ff5e84;
+  font-weight: 800;
+}
+.food-content {
+  flex: 1;
+  background: rgba(255,250,252,0.6);
+  overflow-y: auto;
+  padding: 12px 10px;
+}
+.cate-panel { display: none; }
+.cate-panel.active-panel { display: block; }
+.food-item-wrap {
+  margin-bottom: 14px;
+  background: rgba(255,255,255,0.92);
+  border-radius: 24px;
+  padding: 8px 12px 8px 8px;
+  border: 1px solid #ffe7ef;
+  position: relative;
+}
+.food-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+.food-item img {
+  width: 68px;
+  height: 68px;
+  object-fit: cover;
+  border-radius: 20px;
+  background: #fce4ec;
+}
+.food-info { flex:1; }
+.food-name {
+  font-size: 16px;
+  font-weight: 700;
+  color: #3e2c32;
+}
+.btn-add {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: #4cd964;
+  color: white;
+  border: none;
+  font-size: 24px;
+  font-weight: bold;
+}
+.btn-del {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  background: #ff5c5c;
+  color: white;
+  border: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  font-size: 18px;
+}
+.cart-box, .order-box {
+  background: rgba(255,248,251,0.85);
+  border-radius: 28px;
+  padding: 16px 18px;
+  margin-top: 18px;
+}
+.cart-box h3, .order-box h3 {
+  color: #ff6b8f;
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 12px;
+}
+#cart-list {
+  font-size: 14px;
+  background: rgba(255,240,245,0.85);
+  padding: 14px 16px;
+  border-radius: 28px;
+  color: #6b4c59;
+  min-height: 60px;
+}
+.cart-bottom {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+.cart-bottom button {
+  flex:1;
+  padding: 12px 0;
+  border-radius: 48px;
+  font-weight: 600;
+  border: none;
+  font-size: 15px;
+}
+#clear-cart {
+  background: #ffb3c6;
+  color: #8b3c4e;
+}
+#submit-order {
+  background: #ff7b9c;
+  color: white;
+}
+.cart-modal {
+  display: none;
+  position: fixed;
+  top:0;left:0;right:0;bottom:0;
+  background: rgba(0,0,0,0.4);
+  align-items: center;
+  justify-content: center;
+  padding:20px;
+  z-index: 999;
+}
+.cart-modal-content {
+  background: white;
+  border-radius: 36px;
+  padding:22px;
+  width:90%;
+  max-width:360px;
+}
+.modal-title {
+  font-size:20px;
+  font-weight:800;
+  color:#ff5e84;
+  text-align:center;
+  margin-bottom:18px;
+}
+.global-tip {
+  position: fixed;
+  bottom:30px;
+  left:50%;
+  transform: translateX(-50%);
+  background: #ff5e84e6;
+  color:white;
+  padding:10px 22px;
+  border-radius:60px;
+  font-size:14px;
+  z-index:9999;
+}
+#hiddenFoodImage,#bgFileInput{display:none;}
+</style>
+</head>
+<body>
+
+<div class="page">
+  <div class="container">
+    <div class="setting-box">
+      <button class="setting-btn" id="settingBtn">⚙️</button>
+      <div class="setting-menu" id="menu">
+        <button id="changeNameBtn">✏️ 修改餐厅名称</button>
+        <button id="resetBtn">♻️ 恢复默认</button>
+      </div>
+    </div>
+    <div class="title" id="mainTitle">宝宝专用御膳房</div>
+    <div class="subtitle">💕 为爱人定制专属菜单 💕</div>
+
+    <div class="add-box">
+      <h3>🍳 添加爱心菜品</h3>
+      <div class="add-row">
+        <input type="text" id="foodName" placeholder="菜名">
+      </div>
+      <div class="add-row">
+        <div class="image-pick-area">
+          <span class="image-pick-label" id="pickImageBtn">📷 选择图片</span>
+          <span id="selectedImageName">未选择图片</span>
+        </div>
+        <select id="cateSelect">
+          <option value="veg">🥬 素菜</option>
+          <option value="meat">🍖 肉菜</option>
+          <option value="drink">🥤 饮料</option>
+          <option value="porridge">🥣 粥</option>
+        </select>
+      </div>
+      <div class="add-row">
+        <button class="add-btn-primary" id="addFoodBtn">✨ 添加到菜单 ✨</button>
+      </div>
+    </div>
+
+    <div class="main-wrap">
+      <div class="cate-sidebar">
+        <button class="cate-btn active" data-cate="veg">🥬 素菜</button>
+        <button class="cate-btn" data-cate="meat">🍖 肉菜</button>
+        <button class="cate-btn" data-cate="drink">🥤 饮料</button>
+        <button class="cate-btn" data-cate="porridge">🥣 粥</button>
+      </div>
+      <div class="food-content">
+        <div id="veg" class="cate-panel active-panel"></div>
+        <div id="meat" class="cate-panel"></div>
+        <div id="drink" class="cate-panel"></div>
+        <div id="porridge" class="cate-panel"></div>
+      </div>
+    </div>
+
+    <div class="cart-box">
+      <h3>🛒 已选菜品</h3>
+      <div id="cart-list">🍽️ 还未选菜～</div>
+      <div class="cart-bottom">
+        <button id="clear-cart">🗑️ 清空选菜</button>
+        <button id="submit-order">✅ 提交下单</button>
+      </div>
+    </div>
+
+    <div class="order-box">
+      <h3>📋 点单记录</h3>
+      <div id="order-list"></div>
+    </div>
+  </div>
+</div>
+
+<div class="cart-modal" id="cartModal">
+  <div class="cart-modal-content">
+    <div class="modal-title">🍽️ 已选菜品</div>
+    <div id="modalCartList"></div>
+  </div>
+</div>
+
+<input type="file" id="hiddenFoodImage" accept="image/*">
+<input type="file" id="bgFileInput" accept="image/*">
+
+<script>
+let foods = { veg:[], meat:[], drink:[], porridge:[] }
+let cart = []
+let orders = []
+let currentTitle = "宝宝专用御膳房"
+let pendingImageBase64 = null
+
+function saveAll() {
+  localStorage.setItem("foods", JSON.stringify(foods))
+  localStorage.setItem("cart", JSON.stringify(cart))
+  localStorage.setItem("orders", JSON.stringify(orders))
+  localStorage.setItem("title", currentTitle)
+}
+
+function loadAll() {
+  foods = JSON.parse(localStorage.getItem("foods")) || { veg:[], meat:[], drink:[], porridge:[] }
+  cart = JSON.parse(localStorage.getItem("cart")) || []
+  orders = JSON.parse(localStorage.getItem("orders")) || []
+  currentTitle = localStorage.getItem("title") || "宝宝专用御膳房"
+}
+
+function showMessage(msg) {
+  let tip = document.createElement("div")
+  tip.className = "global-tip"
+  tip.innerText = msg
+  document.body.appendChild(tip)
+  setTimeout(()=>tip.remove(), 1800)
+}
+
+function renderFoods() {
+  ["veg","meat","drink","porridge"].forEach(cate=>{
+    let el = document.getElementById(cate)
+    if(!el) return
+    if(!foods[cate] || foods[cate].length===0) {
+      el.innerHTML = `<div style="text-align:center;padding:40px;color:#cfaabb;">💖 空空如也，快添加菜品吧 💖</div>`
+      return
+    }
+    el.innerHTML = foods[cate].map((food,i)=>`
+      <div class="food-item-wrap">
+        <button class="btn-del" onclick="delFood('${cate}',${i})">✖</button>
+        <div class="food-item">
+          <img src="${food.url||'https://picsum.photos/70/70'}">
+          <div class="food-info"><div class="food-name">${food.name}</div></div>
+          <button class="btn-add" onclick="addCart('${cate}',${i})">+</button>
+        </div>
+      </div>
+    `).join("")
+  })
+}
+
+function delFood(cate,i) {
+  foods[cate].splice(i,1)
+  saveAll()
+  renderFoods()
+  showMessage("🗑️ 已删除")
+}
+
+function addCart(cate,i) {
+  cart.push(foods[cate][i])
+  saveAll()
+  renderCart()
+  showMessage(`➕ 已加入 ${foods[cate][i].name}`)
+}
+
+function renderCart() {
+  let el = document.getElementById("cart-list")
+  if(cart.length===0) el.innerText = "🍽️ 还未选菜～"
+  else el.innerText = cart.map(i=>i.name).join(" · ")
+}
+
+function renderOrders() {
+  let el = document.getElementById("order-list")
+  if(orders.length===0) {
+    el.innerHTML = `<div style="text-align:center;color:#c19aa8;">✨ 暂无订单 ✨</div>`
+    return
+  }
+  el.innerHTML = orders.map(o=>`
+    <div class="order-item">
+      <div style="color:#b28293;font-size:12px;">${o.time}</div>
+      <div>🍲 ${o.list.map(i=>i.name).join("、")}</div>
+    </div>
+  `).join("")
+}
+
+document.getElementById("addFoodBtn").onclick = ()=>{
+  let name = document.getElementById("foodName").value.trim()
+  let cate = document.getElementById("cateSelect").value
+  if(!name) { showMessage("💖 请填写菜名"); return }
+  foods[cate].push({ name, url:pendingImageBase64 })
+  saveAll()
+  renderFoods()
+  document.getElementById("foodName").value = ""
+  pendingImageBase64 = null
+  document.getElementById("selectedImageName").innerText = "未选择图片"
+  showMessage(`🎉 添加成功！`)
+}
+
+document.getElementById("clear-cart").onclick = ()=>{
+  cart = []
+  saveAll()
+  renderCart()
+  showMessage("🧹 已清空购物车")
+}
+
+document.getElementById("submit-order").onclick = ()=>{
+  if(cart.length===0) { showMessage("🥺 请先选菜"); return }
+  orders.unshift({
+    time: new Date().toLocaleString(),
+    list: [...cart]
+  })
+  cart = []
+  saveAll()
+  renderCart()
+  renderOrders()
+  showMessage("✅ 下单成功！")
+}
+
+document.getElementById("settingBtn").onclick = ()=>{
+  document.getElementById("menu").classList.toggle("show")
+}
+
+document.getElementById("changeNameBtn").onclick = ()=>{
+  let newName = prompt("输入新名称", currentTitle)
+  if(newName) {
+    currentTitle = newName
+    document.getElementById("mainTitle").innerText = newName
+    saveAll()
+    showMessage("✨ 修改成功")
+  }
+  document.getElementById("menu").classList.remove("show")
+}
+
+document.getElementById("resetBtn").onclick = ()=>{
+  localStorage.clear()
+  location.reload()
+}
+
+document.querySelectorAll(".cate-btn").forEach(btn=>{
+  btn.onclick = ()=>{
+    document.querySelectorAll(".cate-btn").forEach(b=>b.classList.remove("active"))
+    document.querySelectorAll(".cate-panel").forEach(p=>p.classList.remove("active-panel"))
+    btn.classList.add("active")
+    document.getElementById(btn.dataset.cate).classList.add("active-panel")
+  }
+})
+
+document.getElementById("pickImageBtn").onclick = ()=>{
+  document.getElementById("hiddenFoodImage").click()
+}
+
+document.getElementById("hiddenFoodImage").onchange = (e)=>{
+  let file = e.target.files[0]
+  if(!file) return
+  let r = new FileReader()
+  r.onload = ()=>{
+    pendingImageBase64 = r.result
+    document.getElementById("selectedImageName").innerText = "✅ 已选择图片"
+  }
+  r.readAsDataURL(file)
+}
+
+loadAll()
+document.getElementById("mainTitle").innerText = currentTitle
+renderFoods()
+renderCart()
+renderOrders()
+</script>
+</body>
+</html>
