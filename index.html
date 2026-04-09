@@ -1,0 +1,999 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes, viewport-fit=cover">
+<title>宝宝御膳房 · 情侣点餐助手</title>
+<style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: system-ui, -apple-system, 'Segoe UI', 'Helvetica Neue', '微软雅黑', sans-serif;
+  -webkit-tap-highlight-color: transparent; /* 去掉移动端点击灰层 */
+}
+
+html, body {
+  height: 100%;
+  width: 100%;
+}
+
+/* 背景完全显示在最底层，不会被任何东西遮挡 */
+body {
+  background-color: #ffeef4;
+  background-size: cover;
+  background-position: center center;
+  background-attachment: fixed;
+  background-repeat: no-repeat;
+  transition: background-image 0.25s ease;
+  position: relative;
+}
+
+/* 最外层页面容器：完全透明，只负责布局，不遮挡背景 */
+.page {
+  width: 100%;
+  min-height: 100vh;
+  background: transparent;  /* 关键：完全透明 */
+  padding: 16px 12px 30px;
+}
+
+/* 内容卡片：使用透明背景 + 轻微模糊，让背景图完整透出来 */
+.container {
+  max-width: 540px;
+  margin: 0 auto;
+  background: rgba(255, 248, 250, 0.72);  /* 高透明白色，背景清晰可见 */
+  backdrop-filter: blur(8px);
+  border-radius: 36px;
+  padding: 20px 18px 24px;
+  box-shadow: 0 16px 32px rgba(0, 0, 0, 0.08);
+  position: relative;
+  z-index: 2;
+  transition: all 0.2s;
+}
+
+/* 所有按钮增加触摸区域优化，移动端更容易点击 */
+button, .cate-btn, .image-pick-label, .add-btn-primary, .btn-add, .btn-del, #clear-cart, #submit-order, .setting-btn {
+  cursor: pointer;
+  touch-action: manipulation;  /* 优化触摸响应 */
+  min-height: 44px;  /* 移动端最小点击区域 */
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.setting-box {
+  position: absolute;
+  right: 16px;
+  top: 16px;
+  z-index: 150;
+}
+
+.setting-btn {
+  background: #ff7b9c;
+  color: white;
+  border: none;
+  width: 44px;
+  height: 44px;
+  border-radius: 44px;
+  font-size: 22px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.1);
+  transition: 0.1s;
+}
+
+.setting-btn:active {
+  transform: scale(0.94);
+  background: #ff5e84;
+}
+
+.setting-menu {
+  position: absolute;
+  right: 0;
+  top: 52px;
+  background: rgba(255, 255, 255, 0.98);
+  backdrop-filter: blur(16px);
+  border-radius: 24px;
+  border: 1px solid #ffe2ec;
+  padding: 8px;
+  min-width: 160px;
+  display: none;
+  box-shadow: 0 12px 28px rgba(0,0,0,0.12);
+  z-index: 200;
+}
+
+.setting-menu.show {
+  display: block;
+}
+
+.setting-menu button {
+  width: 100%;
+  background: transparent;
+  border: none;
+  padding: 12px 14px;
+  text-align: left;
+  border-radius: 16px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  color: #4a3b40;
+  min-height: 48px;
+}
+
+.setting-menu button:active {
+  background: #ffe5ef;
+  color: #ff5e84;
+}
+
+.title {
+  text-align: center;
+  font-size: 27px;
+  font-weight: 800;
+  color: #ff6b8f;
+  letter-spacing: 1px;
+  margin-top: 6px;
+  text-shadow: 0 1px 2px rgba(255,255,255,0.6);
+}
+
+.subtitle {
+  text-align: center;
+  color: #b28b9b;
+  margin-bottom: 20px;
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.add-box {
+  background: rgba(255, 248, 251, 0.85);
+  border-radius: 28px;
+  padding: 16px 18px;
+  margin-bottom: 20px;
+  border: 1px solid rgba(255, 226, 236, 0.6);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.03);
+}
+
+.add-box h3 {
+  color: #ff7b9c;
+  font-size: 17px;
+  margin-bottom: 14px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.add-row {
+  display: flex;
+  gap: 12px;
+  margin-bottom: 14px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.add-row input,
+.add-row select {
+  padding: 12px 16px;
+  border-radius: 48px;
+  border: 1px solid #ffd9e5;
+  background: rgba(255, 255, 255, 0.95);
+  flex: 1;
+  min-width: 130px;
+  font-size: 15px;
+  outline: none;
+  transition: 0.2s;
+  min-height: 48px;
+}
+
+.add-row input:focus,
+.add-row select:focus {
+  border-color: #ff85a8;
+  box-shadow: 0 0 0 3px rgba(255, 94, 132, 0.15);
+}
+
+.image-pick-area {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: rgba(255, 241, 245, 0.9);
+  border-radius: 60px;
+  padding: 4px 8px 4px 16px;
+  flex: 1.2;
+  border: 1px solid #ffe0ea;
+}
+
+.image-pick-label {
+  background: #ff7b9c20;
+  padding: 8px 18px;
+  border-radius: 40px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #ff5e84;
+  cursor: pointer;
+  transition: 0.2s;
+  white-space: nowrap;
+  border: 1px solid #ffb7cc;
+  min-height: 44px;
+}
+
+.image-pick-label:active {
+  background: #ffdae5;
+  transform: scale(0.96);
+}
+
+#selectedImageName {
+  font-size: 12px;
+  color: #b2738a;
+  flex: 1;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.add-btn-primary {
+  background: #ff7b9c;
+  border: none;
+  padding: 14px 24px;
+  border-radius: 48px;
+  color: white;
+  font-weight: 700;
+  cursor: pointer;
+  font-size: 16px;
+  transition: 0.2s;
+  box-shadow: 0 2px 8px rgba(255,94,132,0.3);
+  width: 100%;
+  min-height: 52px;
+}
+
+.add-btn-primary:active {
+  background: #ff5e84;
+  transform: scale(0.97);
+}
+
+.main-wrap {
+  display: flex;
+  height: 460px;
+  background: rgba(255, 250, 253, 0.7);
+  border-radius: 28px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 226, 236, 0.5);
+}
+
+.cate-sidebar {
+  width: 100px;
+  background: rgba(255, 245, 249, 0.7);
+  border-radius: 28px 0 0 28px;
+  display: flex;
+  flex-direction: column;
+  padding: 12px 0;
+}
+
+.cate-btn {
+  padding: 16px 6px;
+  border: none;
+  background: transparent;
+  font-size: 15px;
+  font-weight: 600;
+  text-align: center;
+  cursor: pointer;
+  color: #ac8c99;
+  border-left: 3px solid transparent;
+  transition: all 0.15s;
+  min-height: 60px;
+  touch-action: manipulation;
+}
+
+.cate-btn.active {
+  background: rgba(255, 255, 255, 0.8);
+  color: #ff5e84;
+  border-left: 3px solid #ff5e84;
+  font-weight: 800;
+}
+
+.food-content {
+  flex: 1;
+  background: rgba(255, 250, 252, 0.6);
+  overflow-y: auto;
+  padding: 12px 10px;
+  -webkit-overflow-scrolling: touch;
+}
+
+.cate-panel {
+  display: none;
+}
+
+.cate-panel.active-panel {
+  display: block;
+}
+
+.food-item-wrap {
+  position: relative;
+  margin-bottom: 14px;
+  background: rgba(255, 255, 255, 0.92);
+  border-radius: 24px;
+  padding: 8px 12px 8px 8px;
+  transition: 0.1s;
+  border: 1px solid #ffe7ef;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.03);
+}
+
+.food-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.food-item img {
+  width: 68px;
+  height: 68px;
+  object-fit: cover;
+  border-radius: 20px;
+  background: #fce4ec;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+}
+
+.food-info {
+  flex: 1;
+}
+
+.food-name {
+  font-size: 16px;
+  font-weight: 700;
+  color: #3e2c32;
+}
+
+.btn-add {
+  width: 44px;
+  height: 44px;
+  border-radius: 44px;
+  background: #4cd964;
+  color: white;
+  border: none;
+  font-size: 24px;
+  font-weight: bold;
+  cursor: pointer;
+  transition: 0.1s;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.btn-add:active {
+  background: #3bb851;
+  transform: scale(0.92);
+}
+
+.btn-del {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  background: #ff5c5c;
+  color: white;
+  border: none;
+  width: 32px;
+  height: 32px;
+  border-radius: 32px;
+  font-size: 18px;
+  font-weight: bold;
+  cursor: pointer;
+  z-index: 12;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.cart-box, .order-box {
+  background: rgba(255, 248, 251, 0.85);
+  border-radius: 28px;
+  padding: 16px 18px;
+  margin-top: 18px;
+  border: 1px solid rgba(255, 226, 236, 0.6);
+}
+
+.cart-box h3, .order-box h3 {
+  color: #ff6b8f;
+  font-size: 18px;
+  font-weight: 700;
+  margin-bottom: 12px;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  cursor: pointer;
+  padding: 8px 0;
+  min-height: 48px;
+}
+
+#cart-list {
+  font-size: 14px;
+  line-height: 1.5;
+  background: rgba(255, 240, 245, 0.85);
+  padding: 14px 16px;
+  border-radius: 28px;
+  color: #6b4c59;
+  margin-bottom: 12px;
+  min-height: 60px;
+  word-break: break-word;
+}
+
+.cart-bottom {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.cart-bottom button {
+  flex: 1;
+  padding: 12px 0;
+  border-radius: 48px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  font-size: 15px;
+  min-height: 48px;
+  touch-action: manipulation;
+}
+
+#clear-cart {
+  background: #ffb3c6;
+  color: #8b3c4e;
+}
+
+#submit-order {
+  background: #ff7b9c;
+  color: white;
+  box-shadow: 0 2px 6px rgba(255, 94, 132, 0.3);
+}
+
+.cart-modal {
+  display: none;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background: rgba(0, 0, 0, 0.4);
+  backdrop-filter: blur(8px);
+  z-index: 1000;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+}
+
+.cart-modal-content {
+  background: white;
+  border-radius: 36px;
+  padding: 22px;
+  width: 90%;
+  max-width: 360px;
+  max-height: 65vh;
+  overflow-y: auto;
+}
+
+.modal-title {
+  font-size: 20px;
+  font-weight: 800;
+  color: #ff5e84;
+  text-align: center;
+  margin-bottom: 18px;
+}
+
+.modal-cart-item {
+  padding: 10px 0;
+  border-bottom: 1px solid #ffecf0;
+  font-weight: 500;
+}
+
+.order-item {
+  padding: 12px 0;
+  border-bottom: 1px solid #ffebf0;
+}
+
+.order-time {
+  color: #b28293;
+  font-size: 12px;
+  margin-bottom: 5px;
+}
+
+#bgFileInput, #hiddenFoodImage {
+  display: none;
+}
+
+.global-tip {
+  position: fixed;
+  bottom: 30px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #ff5e84e6;
+  color: white;
+  padding: 10px 22px;
+  border-radius: 60px;
+  font-size: 14px;
+  font-weight: 500;
+  z-index: 9999;
+  backdrop-filter: blur(4px);
+  pointer-events: none;
+  white-space: nowrap;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+  transition: opacity 0.2s;
+}
+
+@media (max-width: 480px) {
+  .container {
+    padding: 16px 14px 20px;
+  }
+  .cate-sidebar {
+    width: 85px;
+  }
+  .cate-btn {
+    font-size: 13px;
+    padding: 12px 4px;
+  }
+  .food-item img {
+    width: 58px;
+    height: 58px;
+  }
+  .btn-add, .btn-del {
+    width: 40px;
+    height: 40px;
+  }
+  .add-row {
+    gap: 8px;
+  }
+}
+</style>
+</head>
+<body>
+<div class="page">
+  <div class="container">
+    <div class="setting-box">
+      <button class="setting-btn" id="settingBtn">⚙️</button>
+      <div class="setting-menu" id="menu">
+        <button id="changeNameBtn">✏️ 修改餐厅名称</button>
+        <button id="changeBgBtn">🖼️ 更换背景图片</button>
+        <button id="resetBtn">♻️ 恢复默认</button>
+      </div>
+    </div>
+
+    <div class="title" id="mainTitle">宝宝专用御膳房</div>
+    <div class="subtitle">💕 为爱人定制专属菜单 💕</div>
+
+    <div class="add-box">
+      <h3>🍳 添加爱心菜品</h3>
+      <div class="add-row">
+        <input type="text" id="foodName" placeholder="菜名, 例如：蜜汁烤翅" autocomplete="off">
+      </div>
+      <div class="add-row">
+        <div class="image-pick-area">
+          <span class="image-pick-label" id="pickImageBtn">📷 选择图片</span>
+          <span id="selectedImageName">未选择任何图片</span>
+        </div>
+        <select id="cateSelect">
+          <option value="veg">🥬 素菜</option>
+          <option value="meat">🍖 肉菜</option>
+          <option value="drink">🥤 饮料</option>
+          <option value="porridge">🥣 粥</option>
+        </select>
+      </div>
+      <div class="add-row">
+        <button class="add-btn-primary" id="addFoodBtn">✨ 添加到菜单 ✨</button>
+      </div>
+    </div>
+
+    <div class="main-wrap">
+      <div class="cate-sidebar">
+        <button class="cate-btn active" data-cate="veg">🥬 素菜</button>
+        <button class="cate-btn" data-cate="meat">🍖 肉菜</button>
+        <button class="cate-btn" data-cate="drink">🥤 饮料</button>
+        <button class="cate-btn" data-cate="porridge">🥣 粥</button>
+      </div>
+      <div class="food-content">
+        <div id="veg" class="cate-panel active-panel"></div>
+        <div id="meat" class="cate-panel"></div>
+        <div id="drink" class="cate-panel"></div>
+        <div id="porridge" class="cate-panel"></div>
+      </div>
+    </div>
+
+    <div class="cart-box">
+      <h3 onclick="openCartModal()">🛒 已选菜品 <span style="font-size:12px;">👆 点我展开详情</span></h3>
+      <div id="cart-list">🍽️ 还未选菜～ 点击菜品旁的➕</div>
+      <div class="cart-bottom">
+        <button id="clear-cart">🗑️ 清空选菜</button>
+        <button id="submit-order">✅ 提交下单</button>
+      </div>
+    </div>
+
+    <div class="order-box">
+      <h3>📋 点单记录 (爱的投喂记录)</h3>
+      <div id="order-list"></div>
+    </div>
+  </div>
+</div>
+
+<div class="cart-modal" id="cartModal">
+  <div class="cart-modal-content">
+    <div class="modal-title">🍽️ 今日精选菜品</div>
+    <div id="modalCartList"></div>
+  </div>
+</div>
+
+<input type="file" id="bgFileInput" accept="image/*">
+<input type="file" id="hiddenFoodImage" accept="image/jpeg,image/png,image/webp,image/jpg">
+
+<script>
+// 默认配置
+const defaultBg = "https://i.imgur.com/4d4Z9aZ.jpg";
+const defaultTitle = "宝宝专用御膳房";
+
+// 数据
+let foods = JSON.parse(localStorage.getItem("foods")) || {
+  veg: [],
+  meat: [],
+  drink: [],
+  porridge: []
+};
+let cart = JSON.parse(localStorage.getItem("cart")) || [];
+let orders = JSON.parse(localStorage.getItem("orders")) || [];
+let currentTitle = localStorage.getItem("title") || defaultTitle;
+let currentBg = localStorage.getItem("bg") || defaultBg;
+
+let pendingImageBase64 = null;
+
+['veg', 'meat', 'drink', 'porridge'].forEach(c => {
+  if (!Array.isArray(foods[c])) foods[c] = [];
+});
+
+function saveAll() {
+  localStorage.setItem("foods", JSON.stringify(foods));
+  localStorage.setItem("cart", JSON.stringify(cart));
+  localStorage.setItem("orders", JSON.stringify(orders));
+  localStorage.setItem("title", currentTitle);
+  localStorage.setItem("bg", currentBg);
+}
+
+// 背景应用到body，所有上层透明/半透明，完全不被遮挡
+function applyBackground() {
+  document.body.style.backgroundImage = `url(${currentBg})`;
+  document.body.style.backgroundSize = "cover";
+  document.body.style.backgroundPosition = "center center";
+  document.body.style.backgroundAttachment = "fixed";
+  document.body.style.backgroundColor = "#ffeef4";
+}
+
+function showMessage(msg, isError = false) {
+  let tip = document.querySelector('.global-tip');
+  if (!tip) {
+    const div = document.createElement('div');
+    div.className = 'global-tip';
+    document.body.appendChild(div);
+    tip = div;
+  }
+  tip.style.backgroundColor = isError ? '#ff5c5cd9' : '#ff5e84e6';
+  tip.innerText = msg;
+  tip.style.opacity = '1';
+  clearTimeout(window._tipTimer);
+  window._tipTimer = setTimeout(() => {
+    tip.style.opacity = '0';
+  }, 1800);
+}
+
+function renderFoods() {
+  for (const cate of ['veg', 'meat', 'drink', 'porridge']) {
+    const container = document.getElementById(cate);
+    if (!container) continue;
+    const items = foods[cate];
+    if (!items.length) {
+      container.innerHTML = `<div style="text-align:center; padding:40px 0; color:#cfaabb;">💖 空空如也，快添加第一道爱心菜吧 💖</div>`;
+      continue;
+    }
+    container.innerHTML = items.map((food, idx) => {
+      const imgSrc = food.url && (food.url.startsWith('data:') || food.url.startsWith('http')) ? food.url : 'https://placehold.co/70x70?text=🍲';
+      return `
+        <div class="food-item-wrap" data-cate="${cate}" data-index="${idx}">
+          <button class="btn-del" data-cate="${cate}" data-index="${idx}">✖</button>
+          <div class="food-item">
+            <img src="${imgSrc}" alt="${escapeHtml(food.name)}" onerror="this.src='https://placehold.co/70x70?text=🍚'">
+            <div class="food-info">
+              <div class="food-name">${escapeHtml(food.name)}</div>
+            </div>
+            <button class="btn-add" data-cate="${cate}" data-index="${idx}">+</button>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+  attachFoodEvents();
+}
+
+function attachFoodEvents() {
+  document.querySelectorAll('.btn-del').forEach(btn => {
+    btn.removeEventListener('click', handleDelete);
+    btn.addEventListener('click', handleDelete);
+  });
+  document.querySelectorAll('.btn-add').forEach(btn => {
+    btn.removeEventListener('click', handleAddToCart);
+    btn.addEventListener('click', handleAddToCart);
+  });
+}
+
+function handleDelete(e) {
+  e.stopPropagation();
+  const btn = e.currentTarget;
+  let cate = btn.getAttribute('data-cate');
+  let idx = btn.getAttribute('data-index');
+  if (cate && idx !== null && foods[cate] && foods[cate][parseInt(idx)]) {
+    foods[cate].splice(parseInt(idx), 1);
+    saveAll();
+    renderFoods();
+    showMessage(`🗑️ 已删除菜品`);
+  }
+}
+
+function handleAddToCart(e) {
+  e.stopPropagation();
+  const btn = e.currentTarget;
+  let cate = btn.getAttribute('data-cate');
+  let idx = btn.getAttribute('data-index');
+  if (cate && idx !== null && foods[cate] && foods[cate][parseInt(idx)]) {
+    const foodItem = foods[cate][parseInt(idx)];
+    cart.push({ ...foodItem });
+    saveAll();
+    renderCart();
+    showMessage(`➕ 添加 ${foodItem.name} 到选菜篮`);
+  }
+}
+
+function renderCart() {
+  const cartDiv = document.getElementById('cart-list');
+  if (!cart.length) {
+    cartDiv.innerHTML = '🍽️ 还未选菜～ 点击菜品旁的➕';
+  } else {
+    const names = cart.map(item => item.name).join(' · ');
+    cartDiv.innerHTML = `📌 ${names}`;
+  }
+}
+
+function renderOrders() {
+  const orderDiv = document.getElementById('order-list');
+  if (!orders.length) {
+    orderDiv.innerHTML = '<div style="text-align:center; padding:12px; color:#c19aa8;">✨ 暂无点单记录，为心爱的人点单吧 ✨</div>';
+    return;
+  }
+  orderDiv.innerHTML = orders.map(order => `
+    <div class="order-item">
+      <div class="order-time">⏱️ ${escapeHtml(order.time)}</div>
+      <div>🍲 ${order.list.map(i => escapeHtml(i.name)).join('、')}</div>
+    </div>
+  `).join('');
+}
+
+window.openCartModal = function() {
+  const modal = document.getElementById('cartModal');
+  const modalList = document.getElementById('modalCartList');
+  if (!cart.length) {
+    modalList.innerHTML = '<div style="text-align:center;color:#af8c9a;">💌 还没有选菜，快点添加美味吧 💌</div>';
+  } else {
+    modalList.innerHTML = cart.map((item, idx) => `<div class="modal-cart-item">${idx+1}. ${escapeHtml(item.name)}</div>`).join('');
+  }
+  modal.style.display = 'flex';
+};
+
+document.getElementById('cartModal')?.addEventListener('click', function(e) {
+  if (e.target === this) this.style.display = 'none';
+});
+
+function addNewFoodHandler() {
+  const nameInput = document.getElementById('foodName');
+  const name = nameInput.value.trim();
+  const cateSelect = document.getElementById('cateSelect');
+  const cate = cateSelect.value;
+  
+  if (!name) {
+    showMessage('💖 请填写菜品名称', true);
+    return;
+  }
+  if (!pendingImageBase64) {
+    showMessage('📸 请先选择一张菜品图片', true);
+    return;
+  }
+  
+  foods[cate].push({ name: name, url: pendingImageBase64 });
+  saveAll();
+  renderFoods();
+  
+  nameInput.value = '';
+  pendingImageBase64 = null;
+  const selectedSpan = document.getElementById('selectedImageName');
+  if (selectedSpan) {
+    selectedSpan.innerText = '未选择任何图片';
+    selectedSpan.style.color = '#b2738a';
+  }
+  const fileInput = document.getElementById('hiddenFoodImage');
+  if (fileInput) fileInput.value = '';
+  
+  const cateNameMap = { veg:'素菜', meat:'肉菜', drink:'饮料', porridge:'粥' };
+  showMessage(`🎉 成功添加 "${name}" 到${cateNameMap[cate]}`);
+}
+
+function initImagePicker() {
+  const pickBtn = document.getElementById('pickImageBtn');
+  const hiddenInput = document.getElementById('hiddenFoodImage');
+  const selectedSpan = document.getElementById('selectedImageName');
+  if (!pickBtn || !hiddenInput) return;
+  
+  const newPickBtn = pickBtn.cloneNode(true);
+  pickBtn.parentNode.replaceChild(newPickBtn, pickBtn);
+  const finalPickBtn = document.getElementById('pickImageBtn');
+  
+  finalPickBtn.addEventListener('click', (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+    hiddenInput.click();
+  });
+  
+  hiddenInput.addEventListener('change', (e) => {
+    const file = e.target.files[0];
+    if (!file) return;
+    if (!file.type.startsWith('image/')) {
+      showMessage('请选择图片文件', true);
+      hiddenInput.value = '';
+      return;
+    }
+    if (file.size > 6 * 1024 * 1024) {
+      showMessage('图片请小于6MB', true);
+      hiddenInput.value = '';
+      return;
+    }
+    const reader = new FileReader();
+    reader.onload = function(ev) {
+      pendingImageBase64 = ev.target.result;
+      if (selectedSpan) {
+        const fileName = file.name.length > 28 ? file.name.slice(0, 24) + '...' : file.name;
+        selectedSpan.innerText = `✅ ${fileName}`;
+        selectedSpan.style.color = '#ff5e84';
+      }
+      showMessage(`图片已选择: ${file.name}`);
+    };
+    reader.onerror = () => {
+      showMessage('图片读取失败', true);
+      pendingImageBase64 = null;
+      if (selectedSpan) {
+        selectedSpan.innerText = '未选择任何图片';
+        selectedSpan.style.color = '#b2738a';
+      }
+    };
+    reader.readAsDataURL(file);
+  });
+}
+
+document.getElementById('clear-cart')?.addEventListener('click', () => {
+  if (cart.length) {
+    cart = [];
+    saveAll();
+    renderCart();
+    showMessage('🧹 购物车已清空');
+  } else {
+    showMessage('购物车已经是空的～');
+  }
+});
+
+document.getElementById('submit-order')?.addEventListener('click', () => {
+  if (!cart.length) {
+    showMessage('🥺 还没有选菜，先添加一些美味的菜品吧', true);
+    return;
+  }
+  orders.unshift({
+    time: new Date().toLocaleString('zh-CN'),
+    list: cart.map(item => ({ name: item.name, url: item.url }))
+  });
+  cart = [];
+  saveAll();
+  renderCart();
+  renderOrders();
+  showMessage('✅ 下单成功！对方已收到爱心菜单');
+  const modal = document.getElementById('cartModal');
+  if (modal) modal.style.display = 'none';
+});
+
+const settingBtn = document.getElementById('settingBtn');
+const menuDiv = document.getElementById('menu');
+if (settingBtn) {
+  settingBtn.addEventListener('click', (e) => {
+    e.stopPropagation();
+    menuDiv.classList.toggle('show');
+  });
+}
+document.addEventListener('click', (e) => {
+  if (menuDiv && !menuDiv.contains(e.target) && e.target !== settingBtn) {
+    menuDiv.classList.remove('show');
+  }
+});
+
+document.getElementById('changeNameBtn')?.addEventListener('click', () => {
+  menuDiv.classList.remove('show');
+  const newName = prompt('💗 给你们的御膳房起个名字 💗', currentTitle);
+  if (newName && newName.trim()) {
+    currentTitle = newName.trim();
+    document.getElementById('mainTitle').innerText = currentTitle;
+    document.title = currentTitle;
+    saveAll();
+    showMessage(`✨ 餐厅名已改为 ${currentTitle}`);
+  }
+});
+
+document.getElementById('changeBgBtn')?.addEventListener('click', () => {
+  menuDiv.classList.remove('show');
+  document.getElementById('bgFileInput').click();
+});
+document.getElementById('bgFileInput')?.addEventListener('change', (e) => {
+  const file = e.target.files[0];
+  if (!file) return;
+  const reader = new FileReader();
+  reader.onload = (ev) => {
+    currentBg = ev.target.result;
+    applyBackground();
+    saveAll();
+    showMessage('🖼️ 背景更换成功，浪漫氛围满满！');
+  };
+  reader.onerror = () => showMessage('背景加载失败', true);
+  reader.readAsDataURL(file);
+  e.target.value = '';
+});
+
+document.getElementById('resetBtn')?.addEventListener('click', () => {
+  menuDiv.classList.remove('show');
+  currentTitle = defaultTitle;
+  currentBg = defaultBg;
+  document.getElementById('mainTitle').innerText = defaultTitle;
+  document.title = defaultTitle;
+  applyBackground();
+  saveAll();
+  showMessage('🎀 已恢复默认标题和背景');
+});
+
+const cateBtns = document.querySelectorAll('.cate-btn');
+const panels = document.querySelectorAll('.cate-panel');
+cateBtns.forEach(btn => {
+  btn.addEventListener('click', () => {
+    const cate = btn.dataset.cate;
+    cateBtns.forEach(b => b.classList.remove('active'));
+    panels.forEach(p => p.classList.remove('active-panel'));
+    btn.classList.add('active');
+    const activePanel = document.getElementById(cate);
+    if (activePanel) activePanel.classList.add('active-panel');
+  });
+});
+
+function escapeHtml(str) {
+  if (!str) return '';
+  return str.replace(/[&<>]/g, function(m) {
+    if (m === '&') return '&amp;';
+    if (m === '<') return '&lt;';
+    if (m === '>') return '&gt;';
+    return m;
+  });
+}
+
+function init() {
+  applyBackground();
+  document.getElementById('mainTitle').innerText = currentTitle;
+  document.title = currentTitle;
+  renderFoods();
+  renderCart();
+  renderOrders();
+  initImagePicker();
+  
+  const addBtn = document.getElementById('addFoodBtn');
+  if (addBtn) {
+    const newAddBtn = addBtn.cloneNode(true);
+    addBtn.parentNode.replaceChild(newAddBtn, addBtn);
+    const freshAddBtn = document.getElementById('addFoodBtn');
+    freshAddBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      addNewFoodHandler();
+    });
+  }
+}
+init();
+</script>
+</body>
+</html>
